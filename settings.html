@@ -10,7 +10,9 @@
 </div><div class="footer"><b>IVAN TECH HUB</b> • © 2026</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL="https://xgadezouciekpsflwxdd.supabase.co"; const SUPABASE_KEY="sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J"; const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL="https://xgadezouciekpsflwxdd.supabase.co"; 
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnYWRlem91Y2lla3BzZmx3eGRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5NTQ0NDksImV4cCI6MjEwOTUzMDQ0OX0.UX6xUYRM_S3xjpf6IfoHko6T7Poz5YKaffX7EE1ldKM";
+  const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const user=JSON.parse(localStorage.getItem('ith_user')||'null'); if(!user) location.href='login.html';
 if(user){ document.getElementById('userName').textContent=user.full_name||user.username; document.getElementById('userRole').textContent=user.role||'STAFF'; }
 function logout(){ localStorage.removeItem('ith_user'); location.href='login.html'; }
