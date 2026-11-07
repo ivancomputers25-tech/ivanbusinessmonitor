@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Expenses - IVAN TECH HUB</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<div class="topbar"><div class="topbar-inner"><img src="logo.png" onerror="this.style.display='none'"><div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Business Monitor System</div><div class="sub">Yumbe, Uganda</div></div><div class="top-user"><div>Welcome, <b id="userName">Loading...</b></div><span class="role" id="userRole">-</span><button onclick="logout()">Logout</button></div></div></div>
+<nav class="menu"><div class="menu-inner"><a href="dashboard.html">Dashboard</a><a href="jobs.html">Jobs</a><a href="customers.html">Customers</a><a href="stock.html">Stock</a><a href="prices.html">Prices</a><a href="expenses.html" class="active">Expenses</a><a href="reports.html">Reports</a><a href="settings.html">Settings</a></div></nav>
+<div class="wrap"><div class="breadcrumb">Home / <b>Expenses</b></div>
+<div class="title-card"><div><h2><i class="fa-solid fa-money-bill-wave"></i> Expenses</h2><p id="expInfo">Loading...</p></div></div>
+<div class="card"><div class="card-head"><span>Add Expense</span></div><div class="card-body"><div class="form-grid three"><div class="field"><label>Date</label><input id="eDate" type="date"></div><div class="field"><label>Category</label><select id="eCat"><option>Rent</option><option>Transport</option><option>Airtime / Data</option><option>Food</option><option>Stock Purchase</option><option>Repairs</option><option>Other</option></select></div><div class="field"><label>Amount (UGX)</label><input id="eAmt" type="number" value="0"></div></div><div class="field" style="margin-top:12px"><label>Description</label><input id="eDesc" placeholder="e.g. Bought 5 laptop chargers"></div><button class="btn btn-red btn-block" style="margin-top:14px" onclick="saveExp()">Save Expense</button></div></div>
+<div class="card"><div class="card-head"><span>Expense List</span><span class="badge" id="expTotal">UGX 0</span></div><div class="card-body"><div class="form-grid two"><div class="field"><label>From</label><input id="fromDate" type="date" onchange="render()"></div><div class="field"><label>To</label><input id="toDate" type="date" onchange="render()"></div></div><div class="table-wrap" id="tableWrap" style="margin-top:12px"><table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Action</th></tr></thead><tbody id="expTable"></tbody></table></div><div id="expCards"></div></div></div>
+</div><div class="footer"><b>IVAN TECH HUB</b> • © 2026</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xgadezouciekpsflwxdd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const user = JSON.parse(localStorage.getItem('ith_user') || 'null');
+if (!user) location.href = 'login.html';
+if (user){ document.getElementById('userName').textContent = user.full_name || user.username; document.getElementById('userRole').textContent = user.role || 'STAFF'; }
+function logout(){ localStorage.removeItem('ith_user'); location.href = 'login.html'; }
+function fmt(n){ return 'UGX ' + Number(n || 0).toLocaleString(); }
+function esc(s){ return String(s || '').replace(/'/g, ""); }
+document.getElementById('eDate').value = new Date().toISOString().slice(0,10);
+let all = [];
+async function load(){ const res = await supabaseClient.from('ith_expenses').select('*').order('date',{ascending:false}); all = res.data || []; render(); }
+function render(){
+  const from = document.getElementById('fromDate').value, to = document.getElementById('toDate').value;
+  let list = all;
+  if (from) list = list.filter(e => e.date >= from);
+  if (to) list = list.filter(e => e.date <= to);
+  const total = list.reduce((s,e) => s + Number(e.amount || 0), 0);
+  document.getElementById('expInfo').textContent = list.length + ' expenses • Total ' + fmt(total);
+  document.getElementById('expTotal').textContent = fmt(total);
+  document.getElementById('expTable').innerHTML = list.length ? list.map(e => '<tr><td>' + e.date + '</td><td><span class="badge badge-amber">' + esc(e.category) + '</span></td><td>' + esc(e.description) + '</td><td style="color:#B91C1C;font-weight:800">' + fmt(e.amount) + '</td><td><button class="btn btn-red btn-sm" onclick="delExp(\'' + e.id + '\')">Del</button></td></tr>').join('') : '<tr><td colspan="5" style="text-align:center;padding:20px">No expenses</td></tr>';
+  document.getElementById('expCards').innerHTML = list.map(e => '<div class="record-card"><b>' + esc(e.category) + '</b><div class="sub">' + e.date + ' • ' + esc(e.description) + '</div><div style="margin-top:6px;color:#B91C1C;font-weight:800">' + fmt(e.amount) + '</div><button class="btn btn-red btn-sm" style="margin-top:8px" onclick="delExp(\'' + e.id + '\')">Delete</button></div>').join('');
+  const isMobile = window.innerWidth < 768;
+  document.getElementById('expCards').style.display = isMobile ? 'block' : 'none';
+  document.getElementById('tableWrap').style.display = isMobile ? 'none' : 'block';
+}
+async function saveExp(){
+  const date = document.getElementById('eDate').value;
+  const category = document.getElementById('eCat').value;
+  const amount = Number(document.getElementById('eAmt').value || 0);
+  const description = document.getElementById('eDesc').value.trim();
+  if (!date || amount <= 0) return alert('Enter date and amount');
+  const res = await supabaseClient.from('ith_expenses').insert({date: date, category: category, amount: amount, description: description, created_by: user.username});
+  if (res.error) return alert(res.error.message);
+  document.getElementById('eAmt').value = 0; document.getElementById('eDesc').value = ''; load();
+}
+async function delExp(id){ if (!confirm('Delete expense?')) return; await supabaseClient.from('ith_expenses').delete().eq('id', id); load(); }
+load();
+</script></body></html>

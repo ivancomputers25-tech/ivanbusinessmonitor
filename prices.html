@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Prices - IVAN TECH HUB</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<div class="topbar"><div class="topbar-inner"><img src="images/logo.jpg" onerror="this.style.display='none'"><div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Business Monitor System</div><div class="sub">Yumbe, Uganda</div></div><div class="top-user"><div>Welcome, <b id="userName">Loading...</b></div><span class="role" id="userRole">-</span><button onclick="logout()">Logout</button></div></div></div>
+<nav class="menu"><div class="menu-inner"><a href="dashboard.html">Dashboard</a><a href="jobs.html">Jobs</a><a href="customers.html">Customers</a><a href="stock.html">Stock</a><a href="prices.html" class="active">Prices</a><a href="expenses.html">Expenses</a><a href="reports.html">Reports</a><a href="settings.html">Settings</a></div></nav>
+<div class="wrap"><div class="breadcrumb">Home / <b>Prices</b></div>
+<div class="title-card"><div><h2><i class="fa-solid fa-tags"></i> Price List</h2><p id="priceInfo">Loading...</p></div><button class="btn btn-gold" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add Price</button></div>
+<div class="card"><div class="card-head"><span>All Services</span></div><div class="card-body"><div class="search-wrap"><i class="fa-solid fa-search"></i><input id="searchInput" oninput="render()" placeholder="Search service..."></div><div class="table-wrap" id="tableWrap"><table><thead><tr><th>Service</th><th>Price</th><th>Category</th><th>Action</th></tr></thead><tbody id="priceTable"></tbody></table></div><div id="priceCards"></div></div></div>
+</div><div class="footer"><b>IVAN TECH HUB</b> • © 2026</div>
+<div class="modal-bg" id="priceModal"><div class="modal"><div class="modal-head"><span id="modalTitle">Add Price</span><button onclick="closeModal()">×</button></div><div class="modal-body"><input type="hidden" id="editId"><div class="form-grid"><div class="field"><label>Service Name</label><input id="pService" placeholder="e.g. Laptop Repair"></div><div class="field"><label>Price (UGX)</label><input id="pPrice" type="number" value="0"></div><div class="field"><label>Category</label><select id="pCat"><option>Repair</option><option>Printing</option><option>Software</option><option>Accessories</option><option>Other</option></select></div></div><button class="btn btn-green btn-block" style="margin-top:14px" onclick="savePrice()">Save Price</button></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xgadezouciekpsflwxdd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const user = JSON.parse(localStorage.getItem('ith_user') || 'null');
+if (!user) location.href = 'login.html';
+if (user){ document.getElementById('userName').textContent = user.full_name || user.username; document.getElementById('userRole').textContent = user.role || 'STAFF'; }
+function logout(){ localStorage.removeItem('ith_user'); location.href = 'login.html'; }
+function fmt(n){ return 'UGX ' + Number(n || 0).toLocaleString(); }
+function esc(s){ return String(s || '').replace(/'/g, ""); }
+let all = [];
+async function load(){ const res = await supabaseClient.from('ith_prices').select('*').order('service',{ascending:true}); all = res.data || []; render(); }
+function render(){
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const list = all.filter(p => p.service.toLowerCase().includes(q));
+  document.getElementById('priceInfo').textContent = list.length + ' services in price list';
+  document.getElementById('priceTable').innerHTML = list.length ? list.map(p => '<tr><td><b>' + esc(p.service) + '</b></td><td>' + fmt(p.price) + '</td><td><span class="badge badge-blue">' + (p.category || 'Repair') + '</span></td><td><button class="btn btn-blue btn-sm" onclick="editPrice(\'' + p.id + '\')">Edit</button> <button class="btn btn-red btn-sm" onclick="delPrice(\'' + p.id + '\')">Del</button></td></tr>').join('') : '<tr><td colspan="4" style="text-align:center;padding:20px">No prices yet</td></tr>';
+  document.getElementById('priceCards').innerHTML = list.map(p => '<div class="record-card"><b>' + esc(p.service) + '</b><div class="sub">' + fmt(p.price) + ' • ' + (p.category || '') + '</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-blue btn-sm" onclick="editPrice(\'' + p.id + '\')">Edit</button><button class="btn btn-red btn-sm" onclick="delPrice(\'' + p.id + '\')">Delete</button></div></div>').join('');
+  const isMobile = window.innerWidth < 768;
+  document.getElementById('priceCards').style.display = isMobile ? 'block' : 'none';
+  document.getElementById('tableWrap').style.display = isMobile ? 'none' : 'block';
+}
+function openModal(){ document.getElementById('modalTitle').textContent = 'Add Price'; document.getElementById('editId').value = ''; document.getElementById('pService').value = ''; document.getElementById('pPrice').value = 0; document.getElementById('priceModal').classList.add('open'); }
+function closeModal(){ document.getElementById('priceModal').classList.remove('open'); }
+function editPrice(id){ const p = all.find(x => String(x.id) === String(id)); if (!p) return; document.getElementById('modalTitle').textContent = 'Edit Price'; document.getElementById('editId').value = p.id; document.getElementById('pService').value = p.service; document.getElementById('pPrice').value = p.price; document.getElementById('pCat').value = p.category || 'Repair'; document.getElementById('priceModal').classList.add('open'); }
+async function savePrice(){
+  const id = document.getElementById('editId').value;
+  const payload = { service: document.getElementById('pService').value.trim(), price: Number(document.getElementById('pPrice').value || 0), category: document.getElementById('pCat').value };
+  if (!payload.service) return alert('Enter service');
+  let res;
+  if (id){ res = await supabaseClient.from('ith_prices').update(payload).eq('id', id); }
+  else { res = await supabaseClient.from('ith_prices').insert(payload); }
+  if (res.error) alert(res.error.message);
+  closeModal(); load();
+}
+async function delPrice(id){ if (!confirm('Delete price?')) return; await supabaseClient.from('ith_prices').delete().eq('id', id); load(); }
+load();
+</script></body></html>

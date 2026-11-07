@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Reports - IVAN TECH HUB</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script></head>
+<body>
+<div class="topbar"><div class="topbar-inner"><img src="images/logo.jpg" onerror="this.style.display='none'"><div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Business Monitor System</div><div class="sub">Yumbe, Uganda</div></div><div class="top-user"><div>Welcome, <b id="userName">Loading...</b></div><span class="role" id="userRole">-</span><button onclick="logout()">Logout</button></div></div></div>
+<nav class="menu"><div class="menu-inner"><a href="dashboard.html">Dashboard</a><a href="jobs.html">Jobs</a><a href="customers.html">Customers</a><a href="stock.html">Stock</a><a href="prices.html">Prices</a><a href="expenses.html">Expenses</a><a href="reports.html" class="active">Reports</a><a href="settings.html">Settings</a></div></nav>
+<div class="wrap"><div class="breadcrumb">Home / <b>Reports</b></div>
+<div class="title-card"><div><h2><i class="fa-solid fa-chart-line"></i> Business Reports</h2><p>Daily • Weekly • Monthly • Yearly</p></div><button class="btn btn-green no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Report</button></div>
+<div class="card"><div class="card-head"><span>Select Period</span></div><div class="card-body"><div class="tabs"><button onclick="setPeriod('daily',this)" class="active">Daily</button><button onclick="setPeriod('weekly',this)">Weekly</button><button onclick="setPeriod('monthly',this)">Monthly</button><button onclick="setPeriod('yearly',this)">Yearly</button></div><div class="filter-grid"><div class="field"><label>Date</label><input id="filterDate" type="date" onchange="apply()"></div><div class="field"><label>Month</label><select id="filterMonth" onchange="apply()"><option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option></select></div><div class="field"><label>Year</label><select id="filterYear" onchange="apply()"><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select></div></div></div></div>
+<div class="card-grid three"><div class="stat-card"><div class="lbl" id="rEarnLbl">Earnings</div><div class="val" id="rEarn">UGX 0</div></div><div class="stat-card red"><div class="lbl">Expenses</div><div class="val" id="rExp">UGX 0</div></div><div class="stat-card green"><div class="lbl">Profit</div><div class="val" id="rProfit">UGX 0</div></div></div>
+<div class="card-grid three"><div class="stat-card"><div class="lbl">Jobs</div><div class="val" id="rJobs">0</div></div><div class="stat-card gold"><div class="lbl">Savings 80%</div><div class="val" id="rSave">UGX 0</div></div><div class="stat-card"><div class="lbl">Others 20%</div><div class="val" id="rOther">UGX 0</div></div></div>
+<div class="card"><div class="card-head"><span id="chartTitle">Earnings vs Expense</span></div><div class="card-body"><div class="chart-box"><canvas id="reportChart"></canvas></div></div></div>
+<div class="card"><div class="card-head"><span>Top Services</span></div><div class="card-body"><div id="topServices"></div></div></div>
+</div><div class="footer"><b>IVAN TECH HUB</b> • © 2026</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://xgadezouciekpsflwxdd.supabase.co"; const SUPABASE_KEY="sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J"; const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const user=JSON.parse(localStorage.getItem('ith_user')||'null'); if(!user) location.href='login.html';
+if(user){ document.getElementById('userName').textContent=user.full_name||user.username; document.getElementById('userRole').textContent=user.role||'STAFF'; }
+function logout(){ localStorage.removeItem('ith_user'); location.href='login.html'; }
+function fmt(n){ return 'UGX '+Number(n||0).toLocaleString(); }
+let allJobs=[], allExps=[], period='daily', chart=null;
+const todayStr=new Date().toISOString().slice(0,10); document.getElementById('filterDate').value=todayStr; document.getElementById('filterMonth').value=String(new Date().getMonth());
+function setPeriod(p,btn){ period=p; document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); apply(); }
+async function load(){ const j=await supabaseClient.from('ith_jobs').select('*'); const e=await supabaseClient.from('ith_expenses').select('*'); allJobs=j.data||[]; allExps=e.data||[]; apply(); }
+function apply(){
+  const dVal=document.getElementById('filterDate').value||todayStr, mVal=Number(document.getElementById('filterMonth').value), yVal=Number(document.getElementById('filterYear').value);
+  let start='',end='',labels=[];
+  if(period==='daily'){ start=dVal; end=dVal; labels=[new Date(dVal+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short'})]; }
+  else if(period==='weekly'){ const d=new Date(dVal+'T00:00:00'); const diff=(d.getDay()===0?-6:1-d.getDay()); const mon=new Date(d); mon.setDate(d.getDate()+diff); const sun=new Date(mon); sun.setDate(mon.getDate()+6); start=mon.toISOString().slice(0,10); end=sun.toISOString().slice(0,10); for(let i=0;i<7;i++){ const dd=new Date(mon); dd.setDate(mon.getDate()+i); labels.push(dd.toLocaleDateString('en-GB',{weekday:'short'})); } }
+  else if(period==='monthly'){ start=yVal+'-'+String(mVal+1).padStart(2,'0')+'-01'; const last=new Date(yVal,mVal+1,0).getDate(); end=yVal+'-'+String(mVal+1).padStart(2,'0')+'-'+String(last).padStart(2,'0'); for(let i=1;i<=last;i++) labels.push(String(i)); }
+  else { start=yVal+'-01-01'; end=yVal+'-12-31'; labels=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; }
+  const pj=allJobs.filter(j=>{ const d=(j.created_at||'').slice(0,10); return d>=start&&d<=end; });
+  const pe=allExps.filter(e=>e.date>=start&&e.date<=end);
+  const earn=pj.reduce((s,j)=>s+Number(j.paid||0),0), exp=pe.reduce((s,e)=>s+Number(e.amount||0),0);
+  document.getElementById('rEarn').textContent=fmt(earn); document.getElementById('rExp').textContent=fmt(exp); document.getElementById('rProfit').textContent=fmt(earn-exp);
+  document.getElementById('rJobs').textContent=pj.length; document.getElementById('rSave').textContent=fmt(Math.round(earn*0.8)); document.getElementById('rOther').textContent=fmt(earn-Math.round(earn*0.8));
+  document.getElementById('chartTitle').textContent=period.toUpperCase()+' — Earnings vs Expense ('+start+' to '+end+')';
+  let inc=[],exd=[];
+  if(period==='daily'){ inc=[earn]; exd=[exp]; }
+  else if(period==='weekly'){ for(let i=0;i<7;i++){ const d=new Date(start+'T00:00:00'); d.setDate(d.getDate()+i); const ds=d.toISOString().slice(0,10); inc.push(pj.filter(j=>(j.created_at||'').slice(0,10)===ds).reduce((s,j)=>s+Number(j.paid||0),0)); exd.push(pe.filter(e=>e.date===ds).reduce((s,e)=>s+Number(e.amount||0),0)); } }
+  else if(period==='monthly'){ for(let i=1;i<=labels.length;i++){ const ds=start.slice(0,8)+String(i).padStart(2,'0'); inc.push(pj.filter(j=>(j.created_at||'').slice(0,10)===ds).reduce((s,j)=>s+Number(j.paid||0),0)); exd.push(pe.filter(e=>e.date===ds).reduce((s,e)=>s+Number(e.amount||0),0)); } }
+  else { for(let m=0;m<12;m++){ const ym=start.slice(0,4)+'-'+String(m+1).padStart(2,'0'); inc.push(pj.filter(j=>(j.created_at||'').slice(0,7)===ym).reduce((s,j)=>s+Number(j.paid||0),0)); exd.push(pe.filter(e=>(e.date||'').slice(0,7)===ym).reduce((s,e)=>s+Number(e.amount||0),0)); } }
+  if(chart) chart.destroy(); chart=new Chart(document.getElementById('reportChart'),{type:'bar',data:{labels:labels,datasets:[{label:'Earnings',data:inc,backgroundColor:'#0B4D2E'},{label:'Expense',data:exd,backgroundColor:'#B91C1C'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'UGX '+Number(v).toLocaleString()}}}}});
+  const map={}; pj.forEach(j=>{ map[j.service]=(map[j.service]||0)+Number(j.paid||0); });
+  const top=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('topServices').innerHTML=top.length?top.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #E2E8F0"><span>${k}</span><b>${fmt(v)}</b></div>`).join(''):'<p style="text-align:center;color:#64748B">No jobs in period</p>';
+}
+load();
+</script></body></html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IVAN TECH HUB — Fast, Affordable & Reliable | Yumbe, Uganda</title>
+<meta name="description" content="IVAN TECH HUB — Computer Repair, Printing, Software, Accessories in Yumbe, Uganda. Fast, Affordable & Reliable.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Index-only styles - still no Tailwind */
+.top-announce{background:#FDB913;color:#0B4D2E;text-align:center;font-size:12px;font-weight:800;padding:8px 12px;letter-spacing:.3px}
+.hero{background:#0B4D2E;color:#fff;border-bottom:5px solid #FDB913}
+.hero-inner{max-width:1180px;margin:0 auto;padding:28px 16px;display:grid;grid-template-columns:1fr;gap:22px;align-items:center}
+@media(min-width:900px){.hero-inner{grid-template-columns:1.2fr .8fr;padding:42px 16px}}
+.hero h1{color:#fff;font-size:34px;line-height:1.08}
+.hero h1 span{color:#FDB913}
+@media(min-width:768px){.hero h1{font-size:52px}}
+.hero p{font-size:15px;color:#D1E7D8;margin-top:12px;line-height:1.6}
+.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.hero-meta span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:700;padding:6px 10px;border-radius:20px;display:inline-flex;gap:6px;align-items:center}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.hero-card{background:#fff;color:#1E293B;border-radius:10px;border-top:5px solid #FDB913;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.hero-card h3{font-size:16px}
+.hero-card .big{font-size:28px;font-weight:900;color:#0B4D2E;margin-top:6px}
+.hero-card .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #EEF1F4;font-size:13px}
+.hero-card .row:last-child{border-bottom:none}
+.trust-bar{max-width:1180px;margin:0 auto;padding:0 16px}
+.trust-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:-18px;position:relative;z-index:2}
+@media(min-width:768px){.trust-grid{grid-template-columns:repeat(4,1fr)}}
+.trust-card{background:#fff;border:1px solid #D9DEE3;border-radius:8px;padding:14px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.trust-card i{width:44px;height:44px;background:#0B4D2E;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:18px}
+.trust-card b{font-size:18px;color:#0B4D2E}
+.trust-card span{font-size:12px;color:#64748B;display:block}
+.section{max-width:1180px;margin:0 auto;padding:24px 16px}
+.section h2{font-size:22px;display:flex;gap:8px;align-items:center}
+.section h2 i{color:#C08A00}
+.section p.sub{color:#64748B;font-size:13px;margin-top:4px}
+.services-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:16px}
+@media(min-width:640px){.services-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.services-grid{grid-template-columns:repeat(3,1fr)}}
+.service-card{background:#fff;border:1px solid #D9DEE3;border-radius:8px;overflow:hidden}
+.service-card .img{height:130px;background:#0B4D2E;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;position:relative}
+.service-card .img span{position:absolute;bottom:10px;right:12px;background:#FDB913;color:#0B4D2E;font-size:11px;font-weight:800;padding:4px 8px;border-radius:4px}
+.service-card .body{padding:14px}
+.service-card .body h3{font-size:15px}
+.service-card .body p{font-size:13px;color:#64748B;margin-top:5px}
+.service-card .foot{padding:0 14px 14px;display:flex;justify-content:space-between;align-items:center}
+.price{font-weight:900;color:#0B4D2E;font-size:15px}
+.why-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:16px}
+@media(min-width:768px){.why-grid{grid-template-columns:1fr 1fr}}
+.why-card{display:flex;gap:12px;background:#fff;border:1px solid #D9DEE3;border-radius:8px;padding:14px}
+.why-card i{width:44px;height:44px;flex-shrink:0;background:#FFFBEA;border:1px solid #FDE68A;color:#92400E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.why-card b{font-size:14px;color:#0B4D2E}
+.why-card p{font-size:13px;color:#64748B;margin-top:3px}
+.how-steps{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
+@media(min-width:768px){.how-steps{grid-template-columns:repeat(4,1fr)}}
+.step{background:#fff;border:1px solid #D9DEE3;border-radius:8px;padding:16px;text-align:center;position:relative}
+.step .num{width:36px;height:36px;background:#0B4D2E;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;margin:0 auto 10px}
+.step b{color:#0B4D2E}
+.step p{font-size:12px;color:#64748B;margin-top:4px}
+.testi{display:grid;grid-template-columns:1fr;gap:14px;margin-top:16px}
+@media(min-width:768px){.testi{grid-template-columns:1fr 1fr}}
+.testi-card{background:#fff;border:1px solid #D9DEE3;border-left:5px solid #FDB913;border-radius:8px;padding:16px}
+.testi-card p{font-style:italic;font-size:14px;color:#334155}
+.testi-card .who{margin-top:10px;display:flex;gap:10px;align-items:center}
+.testi-card .avatar{width:40px;height:40px;background:#0B4D2E;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800}
+.testi-card .who b{font-size:13px;color:#0B4D2E}
+.testi-card .who span{font-size:12px;color:#64748B;display:block}
+.contact-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:16px}
+@media(min-width:900px){.contact-grid{grid-template-columns:1fr 1fr}}
+.contact-card{background:#0B4D2E;color:#fff;border-radius:8px;padding:18px;border-bottom:5px solid #FDB913}
+.contact-card h3{color:#fff}
+.contact-card p{color:#D1E7D8;font-size:13px;margin-top:6px}
+.contact-card .line{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:14px;font-weight:700}
+.contact-card .line i{width:36px;height:36px;background:#FDB913;color:#0B4D2E;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.org-footer{background:#071E33;color:#fff;padding:22px 16px;border-top:5px solid #FDB913}
+.org-footer-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:768px){.org-footer-inner{grid-template-columns:1.2fr 1fr 1fr}}
+.org-footer h3{color:#fff;font-size:15px}
+.org-footer p,.org-footer a{color:#CBD5E1;font-size:13px;line-height:1.7}
+.org-footer a{display:block;text-decoration:none}
+.org-footer a:hover{color:#FDB913}
+.org-footer .copy{max-width:1180px;margin:18px auto 0;padding-top:14px;border-top:1px solid rgba(255,255,255,.15);font-size:12px;color:#94A3B8;text-align:center}
+.floating-wa{position:fixed;bottom:20px;right:16px;z-index:50;width:56px;height:56px;background:#22C55E;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.floating-wa:hover{transform:scale(1.05)}
+@media(max-width:640px){.hero-btns .btn{flex:1}}
+</style>
+</head>
+<body>
+
+<div class="top-announce"><i class="fa-solid fa-bolt"></i> OPEN TODAY • 8:00 AM – 9:00 PM • Yumbe Town • Call 0778007451</div>
+
+<!-- TOP BAR -->
+<div class="topbar"><div class="topbar-inner">
+  <img src="images/logo.jpg" onerror="this.style.display='none'" alt="IVAN TECH HUB">
+  <div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Fast, Affordable & Reliable</div><div class="sub">Yumbe, Uganda • 0778007451</div></div>
+  <div class="top-user"><a href="login.html" class="btn btn-gold" style="margin:0">Staff Login →</a></div>
+</div></div>
+
+<nav class="menu"><div class="menu-inner">
+  <a href="index.html" class="active">Home</a>
+  <a href="#services">Services</a>
+  <a href="#why">Why Us</a>
+  <a href="#how">How It Works</a>
+  <a href="#reviews">Reviews</a>
+  <a href="#contact">Contact</a>
+  <a href="login.html">Staff Login</a>
+</div></nav>
+
+<!-- HERO -->
+<div class="hero"><div class="hero-inner">
+  <div>
+    <span style="background:#FDB913;color:#0B4D2E;font-size:11px;font-weight:800;padding:5px 10px;border-radius:20px">★ RATED #1 IN YUMBE • TRUSTED BY 500+ CUSTOMERS</span>
+    <h1>Your Tech Problems,<br><span>Solved Today.</span></h1>
+    <p>Computer repair, printing, software, accessories & more — done fast, done right, at a price you can afford. Walk in today, leave happy today.</p>
+    <div class="hero-meta"><span><i class="fa-solid fa-clock"></i> Same-Day Service</span><span><i class="fa-solid fa-shield-halved"></i> Warranty on Repairs</span><span><i class="fa-solid fa-hand-holding-dollar"></i> Fair Prices</span></div>
+    <div class="hero-btns">
+      <a href="https://wa.me/256778007451?text=Hello%20IVAN%20TECH%20HUB%2C%20I%20need%20help%20with..." target="_blank" class="btn btn-gold" style="padding:13px 22px;font-size:14px"><i class="fa-brands fa-whatsapp"></i> WhatsApp Us Now</a>
+      <a href="tel:+256778007451" class="btn btn-white" style="padding:13px 22px;font-size:14px"><i class="fa-solid fa-phone"></i> 0778007451</a>
+    </div>
+    <p style="font-size:12px;color:#D1E7D8;margin-top:12px"><i class="fa-solid fa-location-dot"></i> Find us in Yumbe Town, opposite the main market — look for the green & gold sign.</p>
+  </div>
+  <div class="hero-card">
+    <h3><i class="fa-solid fa-bolt" style="color:#C08A00"></i> Today's Popular Prices</h3>
+    <div class="big">From UGX 5,000</div>
+    <p style="font-size:12px;color:#64748B">No hidden charges. You approve price before we start.</p>
+    <div class="row"><span>💻 Laptop / Phone Repair</span><b>From 15,000</b></div>
+    <div class="row"><span>🖨️ Printing / Photocopy</span><b>From 500</b></div>
+    <div class="row"><span>💿 Software / Windows</span><b>From 20,000</b></div>
+    <div class="row"><span>🎵 Music / Movies / Apps</span><b>From 5,000</b></div>
+    <a href="https://wa.me/256778007451?text=Hello%2C%20what%20is%20the%20price%20for..." target="_blank" class="btn btn-green btn-block" style="margin-top:12px"><i class="fa-brands fa-whatsapp"></i> Ask Price on WhatsApp</a>
+    <p style="text-align:center;font-size:11px;color:#64748B;margin-top:8px">✓ Free diagnosis • ✓ Pay after work is done</p>
+  </div>
+</div></div>
+
+<!-- TRUST -->
+<div class="trust-bar"><div class="trust-grid">
+  <div class="trust-card"><i class="fa-solid fa-users"></i><b>500+</b><span>Happy Customers</span></div>
+  <div class="trust-card"><i class="fa-solid fa-briefcase"></i><b>1,200+</b><span>Jobs Completed</span></div>
+  <div class="trust-card"><i class="fa-solid fa-star"></i><b>4.9 / 5</b><span>Customer Rating</span></div>
+  <div class="trust-card"><i class="fa-solid fa-clock"></i><b>Same Day</b><span>Most Repairs Done</span></div>
+</div></div>
+
+<!-- SERVICES -->
+<div class="section" id="services">
+  <h2><i class="fa-solid fa-layer-group"></i> Our Services</h2>
+  <p class="sub">Tap any service to ask price on WhatsApp. We fix it while you wait.</p>
+  <div class="services-grid">
+    <div class="service-card"><div class="img">💻<span>POPULAR</span></div><div class="body"><h3>Computer & Laptop Repair</h3><p>Screen, battery, keyboard, charging, virus, slow computer, no power — we fix all.</p></div><div class="foot"><span class="price">From UGX 15,000</span><a href="https://wa.me/256778007451?text=I%20need%20laptop%20repair" target="_blank" class="btn btn-gold btn-sm">Ask Price →</a></div></div>
+    <div class="service-card"><div class="img">📱<span>POPULAR</span></div><div class="body"><h3>Phone Repair & Unlocking</h3><p>Screen, battery, software, forgotten password, FRP, flashing & unlocking.</p></div><div class="foot"><span class="price">From UGX 10,000</span><a href="https://wa.me/256778007451?text=I%20need%20phone%20repair" target="_blank" class="btn btn-gold btn-sm">Ask Price →</a></div></div>
+    <div class="service-card"><div class="img">🖨️<span>DAILY</span></div><div class="body"><h3>Printing, Photocopy & Design</h3><p>CV, posters, banners, business cards, photos, laminating, typing & scanning.</p></div><div class="foot"><span class="price">From UGX 500</span><a href="https://wa.me/256778007451?text=I%20need%20printing" target="_blank" class="btn btn-gold btn-sm">Ask Price →</a></div></div>
+    <div class="service-card"><div class="img">💿</div><div class="body"><h3>Software & Windows Installation</h3><p>Windows 10/11, Office, antivirus, drivers, games & all programs.</p></div><div class="foot"><span class="price">From UGX 20,000</span><a href="https://wa.me/256778007451?text=I%20need%20Windows%20installation" target="_blank" class="btn btn-gold btn-sm">Ask Price →</a></div></div>
+    <div class="service-card"><div class="img">🎵</div><div class="body"><h3>Music, Movies & Apps</h3><p>Latest music, movies, series, apps & games loaded to your phone / flash.</p></div><div class="foot"><span class="price">From UGX 5,000</span><a href="https://wa.me/256778007451?text=I%20need%20music%20and%20movies" target="_blank" class="btn btn-gold btn-sm">Ask Price →</a></div></div>
+    <div class="service-card"><div class="img">🛒</div><div class="body"><h3>Accessories & Sales</h3><p>Chargers, cables, earphones, flash disks, covers, keyboards & more.</p></div><div class="foot"><span class="price">Best Price</span><a href="https://wa.me/256778007451?text=I%20want%20to%20buy%20accessories" target="_blank" class="btn btn-gold btn-sm">Ask Price →</a></div></div>
+  </div>
+</div>
+
+<!-- WHY US -->
+<div class="section" id="why" style="padding-top:0">
+  <h2><i class="fa-solid fa-heart"></i> Why Yumbe Chooses IVAN TECH HUB</h2>
+  <div class="why-grid">
+    <div class="why-card"><i class="fa-solid fa-bolt"></i><div><b>Fast — Same Day Service</b><p>Most repairs done in 1-3 hours. No waiting for days. You bring it, we fix it, you go.</p></div></div>
+    <div class="why-card"><i class="fa-solid fa-hand-holding-dollar"></i><div><b>Affordable — Fair Prices</b><p>We tell you the price BEFORE we start. No surprise charges. Student-friendly prices.</p></div></div>
+    <div class="why-card"><i class="fa-solid fa-shield-halved"></i><div><b>Trusted — Warranty</b><p>Every repair comes with warranty. If it fails again, we fix it free. Your data stays private.</p></div></div>
+    <div class="why-card"><i class="fa-solid fa-receipt"></i><div><b>Professional — Receipt For Every Job</b><p>You get a printed receipt with job number, price, and balance. No cheating.</p></div></div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section" id="how" style="padding-top:0">
+  <h2><i class="fa-solid fa-route"></i> How It Works — 4 Easy Steps</h2>
+  <div class="how-steps">
+    <div class="step"><div class="num">1</div><b>WhatsApp or Walk In</b><p>Send us a message or just come to the shop.</p></div>
+    <div class="step"><div class="num">2</div><b>Free Diagnosis</b><p>We check your device & tell you the price.</p></div>
+    <div class="step"><div class="num">3</div><b>We Fix It</b><p>You wait or come back later. We call you.</p></div>
+    <div class="step"><div class="num">4</div><b>Pay & Collect</b><p>Pay after work is done. Get receipt + warranty.</p></div>
+  </div>
+  <div style="text-align:center;margin-top:18px"><a href="https://wa.me/256778007451?text=Hello%20IVAN%20TECH%20HUB%2C%20I%20need%20help" target="_blank" class="btn btn-green" style="padding:13px 26px;font-size:14px"><i class="fa-brands fa-whatsapp"></i> Start Now — WhatsApp Us</a></div>
+</div>
+
+<!-- REVIEWS -->
+<div class="section" id="reviews" style="padding-top:0">
+  <h2><i class="fa-solid fa-star" style="color:#FDB913"></i> What Customers Say</h2>
+  <div class="testi">
+    <div class="testi-card"><p>"My laptop refused to start. IVAN fixed it in 2 hours and charged me fairly. Best in Yumbe!"</p><div class="who"><div class="avatar">O</div><div><b>Okello J.</b><span>Student, Yumbe • Laptop Repair ★★★★★</span></div></div></div>
+    <div class="testi-card"><p>"I print my CV and business cards here always. Clean work, fast, and cheap. I recommend them to everyone."</p><div class="who"><div class="avatar">A</div><div><b>Amina K.</b><span>Business Woman, Yumbe • Printing ★★★★★</span></div></div></div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="section" id="contact" style="padding-top:0">
+  <h2><i class="fa-solid fa-location-dot"></i> Visit Us Today</h2>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <h3>IVAN TECH HUB — Yumbe</h3>
+      <p>Open every day. Walk in, no appointment needed.</p>
+      <div class="line"><i class="fa-solid fa-location-dot"></i> Yumbe Town, Opposite Main Market</div>
+      <div class="line"><i class="fa-solid fa-phone"></i> 0778007451 / 0700000000</div>
+      <div class="line"><i class="fa-solid fa-clock"></i> Mon – Sat: 8:00 AM – 9:00 PM • Sun: 10 AM – 6 PM</div>
+      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><a href="https://wa.me/256778007451" target="_blank" class="btn btn-gold"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a><a href="tel:+256778007451" class="btn btn-white">Call Now</a></div>
+    </div>
+    <div class="card"><div class="card-head"><span>Send Us A Message</span></div><div class="card-body">
+      <div class="form-grid"><div class="field"><label>Your Name</label><input id="cName" placeholder="Enter your name"></div><div class="field"><label>What Do You Need?</label><select id="cService"><option>Computer Repair</option><option>Phone Repair</option><option>Printing / Design</option><option>Software / Windows</option><option>Accessories</option><option>Other</option></select></div><div class="field"><label>Message</label><textarea id="cMsg" placeholder="Describe your problem..."></textarea></div></div>
+      <button class="btn btn-green btn-block" style="margin-top:12px" onclick="sendMsg()"><i class="fa-brands fa-whatsapp"></i> Send on WhatsApp</button>
+    </div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="org-footer"><div class="org-footer-inner">
+  <div><h3>IVAN TECH HUB</h3><p>Fast, Affordable & Reliable tech services in Yumbe, Uganda. Computer repair, printing, software, accessories & more. We treat every customer like family.</p><p style="margin-top:10px">📍 Yumbe Town • 📞 0778007451</p></div>
+  <div><h3>Quick Links</h3><a href="#services">Our Services</a><a href="#why">Why Choose Us</a><a href="#how">How It Works</a><a href="#reviews">Customer Reviews</a><a href="#contact">Contact Us</a></div>
+  <div><h3>Business Hours</h3><p>Mon – Fri: 8:00 AM – 9:00 PM<br>Sat: 8:00 AM – 9:00 PM<br>Sun: 10:00 AM – 6:00 PM<br><br>Emergency? WhatsApp us anytime.</p></div>
+</div><div class="copy">© 2026 IVAN TECH HUB • Yumbe, Uganda • All Rights Reserved • <a href="login.html" style="display:inline;color:#FDB913">Staff Login</a></div></div>
+
+<a href="https://wa.me/256778007451?text=Hello%20IVAN%20TECH%20HUB" target="_blank" class="floating-wa"><i class="fa-brands fa-whatsapp"></i></a>
+
+<script>
+function sendMsg(){
+  const n=document.getElementById('cName').value.trim()||'Customer';
+  const s=document.getElementById('cService').value;
+  const m=document.getElementById('cMsg').value.trim()||'I need help';
+  const text='Hello IVAN TECH HUB, I am '+n+'. I need: '+s+'. '+m;
+  window.open('https://wa.me/256778007451?text='+encodeURIComponent(text),'_blank');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>New Job - IVAN TECH HUB</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<div class="topbar"><div class="topbar-inner"><img src="images/logo.jpg" onerror="this.style.display='none'"><div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Business Monitor System</div><div class="sub">Yumbe, Uganda • 0778007451</div></div><div class="top-user"><div>Welcome, <b id="userName">Loading...</b></div><span class="role" id="userRole">-</span><button onclick="logout()">Logout</button></div></div></div>
+<nav class="menu"><div class="menu-inner"><a href="dashboard.html">Dashboard</a><a href="jobs.html">Jobs</a><a href="customers.html">Customers</a><a href="stock.html">Stock</a><a href="prices.html">Prices</a><a href="expenses.html">Expenses</a><a href="reports.html">Reports</a><a href="settings.html">Settings</a></div></nav>
+<div class="wrap">
+<div class="breadcrumb">Home / Jobs / <b>New Job</b></div>
+<div class="title-card"><div><h2><i class="fa-solid fa-circle-plus"></i> Create New Job</h2><p>Job No: <b id="jobNoPreview">-</b> • Fill all fields, balance auto-calculates</p></div><a href="jobs.html" class="btn btn-white">← View Jobs</a></div>
+<div class="card"><div class="card-head"><span>Customer Details</span></div><div class="card-body"><div class="form-grid two"><div class="field"><label><i class="fa-solid fa-user"></i> Customer Name *</label><input id="custName" placeholder="e.g. Ivan Okello" list="custList"><datalist id="custList"></datalist></div><div class="field"><label><i class="fa-solid fa-phone"></i> Phone *</label><input id="custPhone" placeholder="077..."></div></div></div></div>
+<div class="card"><div class="card-head"><span>Job Details</span></div><div class="card-body">
+<div class="form-grid two"><div class="field"><label><i class="fa-solid fa-briefcase"></i> Service *</label><select id="service" onchange="autoPrice()"><option value="">-- Select Service --</option></select></div><div class="field"><label><i class="fa-solid fa-circle-dot"></i> Status</label><select id="status"><option>Pending</option><option>In Progress</option><option>Completed</option></select></div></div>
+<div class="field" style="margin-top:12px"><label><i class="fa-solid fa-align-left"></i> Description / Notes</label><textarea id="desc" placeholder="e.g. HP Laptop, screen not coming, customer left charger..."></textarea></div>
+<div class="form-grid three" style="margin-top:12px"><div class="field"><label>Total Amount (UGX)</label><div class="money-input"><span>UGX</span><input id="total" type="number" value="0" oninput="calc()"></div></div><div class="field"><label>Paid (UGX)</label><div class="money-input"><span>UGX</span><input id="paid" type="number" value="0" oninput="calc()"></div></div><div class="field"><label>Balance (UGX)</label><div class="money-input"><span>UGX</span><input id="balance" type="number" value="0" readonly style="background:#FEF2F2;color:#B91C1C"></div></div></div>
+<div style="background:#FFFBEA;border:1px solid #FDE68A;border-radius:6px;padding:12px;margin-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><span><b>Summary:</b> Total <b id="sumTotal">UGX 0</b> • Paid <b id="sumPaid">UGX 0</b> • Balance <b id="sumBal" style="color:#B91C1C">UGX 0</b></span><span id="payStatus" class="badge badge-red">NOT PAID</span></div>
+<button class="btn btn-green btn-block" style="margin-top:14px" onclick="saveJob()" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> Save Job & Print Receipt</button>
+<p id="msg" style="text-align:center;font-size:13px;min-height:18px"></p>
+</div></div>
+</div>
+<div class="footer"><b>IVAN TECH HUB</b> • © 2026</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://xgadezouciekpsflwxdd.supabase.co"; const SUPABASE_KEY="sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J"; const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const user=JSON.parse(localStorage.getItem('ith_user')||'null'); if(!user) location.href='login.html';
+if(user){ document.getElementById('userName').textContent=user.full_name||user.username; document.getElementById('userRole').textContent=user.role||'STAFF'; }
+function logout(){ localStorage.removeItem('ith_user'); location.href='login.html'; }
+function fmt(n){ return 'UGX '+Number(n||0).toLocaleString(); }
+function genJobNo(){ const d=new Date(); return 'ITH-'+String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Math.floor(1000+Math.random()*9000); }
+let jobNo=genJobNo(); document.getElementById('jobNoPreview').textContent=jobNo;
+let prices=[];
+async function loadData(){
+  const p=await supabaseClient.from('ith_prices').select('*').order('service',{ascending:true}); prices=p.data||[];
+  document.getElementById('service').innerHTML='<option value="">-- Select Service --</option>'+prices.map(x=>`<option value="${x.service}" data-price="${x.price}">${x.service} — ${fmt(x.price)}</option>`).join('')+'<option value="Other">Other (Type Price)</option>';
+  const c=await supabaseClient.from('ith_customers').select('*').order('name',{ascending:true}); document.getElementById('custList').innerHTML=(c.data||[]).map(x=>`<option value="${x.name}">`).join('');
+}
+function autoPrice(){ const sel=document.getElementById('service'); const opt=sel.options[sel.selectedIndex]; if(opt && opt.dataset.price){ document.getElementById('total').value=opt.dataset.price; calc(); } }
+function calc(){ const t=Number(document.getElementById('total').value||0), p=Number(document.getElementById('paid').value||0); const b=Math.max(0,t-p); document.getElementById('balance').value=b; document.getElementById('sumTotal').textContent=fmt(t); document.getElementById('sumPaid').textContent=fmt(p); document.getElementById('sumBal').textContent=fmt(b); const s=document.getElementById('payStatus'); if(b===0 && t>0){ s.textContent='FULLY PAID'; s.className='badge badge-green'; } else if(p>0){ s.textContent='PARTLY PAID'; s.className='badge badge-amber'; } else { s.textContent='NOT PAID'; s.className='badge badge-red'; } }
+async function saveJob(){
+  const name=document.getElementById('custName').value.trim(), phone=document.getElementById('custPhone').value.trim(), service=document.getElementById('service').value, status=document.getElementById('status').value, desc=document.getElementById('desc').value.trim();
+  const total=Number(document.getElementById('total').value||0), paid=Number(document.getElementById('paid').value||0), balance=Math.max(0,total-paid);
+  if(!name||!phone||!service) return document.getElementById('msg').textContent='Fill Name, Phone and Service';
+  document.getElementById('saveBtn').textContent='Saving...';
+  // Save / update customer
+  const {data:ex}=await supabaseClient.from('ith_customers').select('*').eq('phone',phone).maybeSingle();
+  if(!ex) await supabaseClient.from('ith_customers').insert({name,phone,total_spent:total,total_paid:paid,total_balance:balance});
+  else await supabaseClient.from('ith_customers').update({name,total_spent:Number(ex.total_spent||0)+total,total_paid:Number(ex.total_paid||0)+paid,total_balance:Number(ex.total_balance||0)+balance}).eq('id',ex.id);
+  const {data,error}=await supabaseClient.from('ith_jobs').insert({job_no:jobNo,customer_name:name,customer_phone:phone,service,description:desc,total,paid,balance,status,created_by:user.username||'admin'}).select().single();
+  if(error){ document.getElementById('msg').textContent=error.message; document.getElementById('saveBtn').textContent='Save Job'; return; }
+  location.href='invoice.html?job='+data.id;
+}
+loadData(); calc();
+</script></body></html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Customers - IVAN TECH HUB</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<div class="topbar"><div class="topbar-inner"><img src="images/logo.jpg" onerror="this.style.display='none'"><div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Business Monitor System</div><div class="sub">Yumbe, Uganda</div></div><div class="top-user"><div>Welcome, <b id="userName">Loading...</b></div><span class="role" id="userRole">-</span><button onclick="logout()">Logout</button></div></div></div>
+<nav class="menu"><div class="menu-inner"><a href="dashboard.html">Dashboard</a><a href="jobs.html">Jobs</a><a href="customers.html" class="active">Customers</a><a href="stock.html">Stock</a><a href="prices.html">Prices</a><a href="expenses.html">Expenses</a><a href="reports.html">Reports</a><a href="settings.html">Settings</a></div></nav>
+<div class="wrap"><div class="breadcrumb">Home / <b>Customers</b></div>
+<div class="title-card"><div><h2><i class="fa-solid fa-users"></i> Customers</h2><p id="custCount">Loading...</p></div><button class="btn btn-gold" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add Customer</button></div>
+<div class="card"><div class="card-head"><span>Search Customers</span></div><div class="card-body"><div class="search-wrap"><i class="fa-solid fa-search"></i><input id="searchInput" oninput="render()" placeholder="Search name or phone..."></div><div class="table-wrap" id="tableWrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Total Spent</th><th>Total Paid</th><th>Balance</th><th>Action</th></tr></thead><tbody id="custTable"></tbody></table></div><div id="custCards"></div></div></div>
+</div><div class="footer"><b>IVAN TECH HUB</b> • © 2026</div>
+<div class="modal-bg" id="custModal"><div class="modal"><div class="modal-head"><span id="modalTitle">Add Customer</span><button onclick="closeModal()">×</button></div><div class="modal-body"><input type="hidden" id="editId"><div class="form-grid"><div class="field"><label>Name</label><input id="cName"></div><div class="field"><label>Phone</label><input id="cPhone"></div><div class="field"><label>Location / Note</label><input id="cNote"></div></div><button class="btn btn-green btn-block" style="margin-top:14px" onclick="saveCust()">Save Customer</button></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xgadezouciekpsflwxdd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const user = JSON.parse(localStorage.getItem('ith_user') || 'null');
+if (!user) location.href = 'login.html';
+if (user){ document.getElementById('userName').textContent = user.full_name || user.username; document.getElementById('userRole').textContent = user.role || 'STAFF'; }
+function logout(){ localStorage.removeItem('ith_user'); location.href = 'login.html'; }
+function fmt(n){ return 'UGX ' + Number(n || 0).toLocaleString(); }
+function esc(s){ return String(s || '').replace(/'/g, ""); }
+let all = [];
+async function load(){ const res = await supabaseClient.from('ith_customers').select('*').order('name',{ascending:true}); all = res.data || []; render(); }
+function render(){
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const list = all.filter(c => (c.name + ' ' + c.phone).toLowerCase().includes(q));
+  document.getElementById('custCount').textContent = list.length + ' customers • Total Balance ' + fmt(list.reduce((s,c) => s + Number(c.total_balance || 0), 0));
+  document.getElementById('custTable').innerHTML = list.length ? list.map(c => '<tr><td><b>' + esc(c.name) + '</b></td><td>' + esc(c.phone) + '</td><td>' + fmt(c.total_spent) + '</td><td>' + fmt(c.total_paid) + '</td><td style="color:#B91C1C;font-weight:800">' + fmt(c.total_balance) + '</td><td><button class="btn btn-blue btn-sm" onclick="editCust(\'' + c.id + '\')">Edit</button> <button class="btn btn-red btn-sm" onclick="delCust(\'' + c.id + '\')">Del</button></td></tr>').join('') : '<tr><td colspan="6" style="text-align:center;padding:20px">No customers</td></tr>';
+  document.getElementById('custCards').innerHTML = list.map(c => '<div class="record-card"><b>' + esc(c.name) + '</b><div class="sub">' + esc(c.phone) + ' • ' + esc(c.note) + '</div><div style="margin-top:8px">Spent ' + fmt(c.total_spent) + ' • Bal <b style="color:#B91C1C">' + fmt(c.total_balance) + '</b></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-blue btn-sm" onclick="editCust(\'' + c.id + '\')">Edit</button><button class="btn btn-red btn-sm" onclick="delCust(\'' + c.id + '\')">Delete</button></div></div>').join('');
+  const isMobile = window.innerWidth < 768;
+  document.getElementById('custCards').style.display = isMobile ? 'block' : 'none';
+  document.getElementById('tableWrap').style.display = isMobile ? 'none' : 'block';
+}
+function openModal(){ document.getElementById('modalTitle').textContent = 'Add Customer'; document.getElementById('editId').value = ''; document.getElementById('cName').value = ''; document.getElementById('cPhone').value = ''; document.getElementById('cNote').value = ''; document.getElementById('custModal').classList.add('open'); }
+function closeModal(){ document.getElementById('custModal').classList.remove('open'); }
+function editCust(id){ const c = all.find(x => String(x.id) === String(id)); if (!c) return; document.getElementById('modalTitle').textContent = 'Edit Customer'; document.getElementById('editId').value = c.id; document.getElementById('cName').value = c.name; document.getElementById('cPhone').value = c.phone; document.getElementById('cNote').value = c.note || ''; document.getElementById('custModal').classList.add('open'); }
+async function saveCust(){
+  const id = document.getElementById('editId').value;
+  const name = document.getElementById('cName').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  const note = document.getElementById('cNote').value.trim();
+  if (!name || !phone) return alert('Fill name and phone');
+  let res;
+  if (id){ res = await supabaseClient.from('ith_customers').update({name: name, phone: phone, note: note}).eq('id', id); }
+  else { res = await supabaseClient.from('ith_customers').insert({name: name, phone: phone, note: note, total_spent: 0, total_paid: 0, total_balance: 0}); }
+  if (res.error) alert(res.error.message);
+  closeModal(); load();
+}
+async function delCust(id){ if (!confirm('Delete customer?')) return; await supabaseClient.from('ith_customers').delete().eq('id', id); load(); }
+load();
+</script></body></html>

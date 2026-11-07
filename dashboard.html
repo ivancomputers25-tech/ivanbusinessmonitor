@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Dashboard - IVAN TECH HUB</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script></head>
+<body>
+<div class="topbar"><div class="topbar-inner"><img src="images/logo.jpg" onerror="this.style.display='none'"><div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Business Monitor System • Fast, Affordable & Reliable</div><div class="sub">Yumbe, Uganda • 0778007451</div></div><div class="top-user"><div>Welcome, <b id="userName">Loading...</b></div><span class="role" id="userRole">-</span><button onclick="logout()">Logout</button></div></div></div>
+<nav class="menu"><div class="menu-inner"><a href="dashboard.html" class="active">Dashboard</a><a href="jobs.html">Jobs</a><a href="customers.html">Customers</a><a href="stock.html">Stock</a><a href="prices.html">Prices</a><a href="expenses.html">Expenses</a><a href="reports.html">Reports</a><a href="settings.html">Settings</a></div></nav>
+<div class="wrap">
+<div class="breadcrumb">Home / <b>Dashboard</b></div>
+<div class="title-card"><div><h2><i class="fa-solid fa-gauge-high"></i> <span id="greeting">Good Afternoon</span>, <span id="greetName">Boss</span></h2><p><i class="fa-solid fa-calendar-day"></i> <span id="todayDate"></span> • Yumbe, Uganda</p></div><div class="actions"><a href="new-job.html" class="btn btn-gold"><i class="fa-solid fa-plus"></i> New Job</a><a href="invoice.html" class="btn btn-green"><i class="fa-solid fa-receipt"></i> Receipt</a></div></div>
+<div class="card"><div class="card-head"><span><i class="fa-solid fa-filter"></i> Money Filter</span><span class="badge" id="filterLabel">Today</span></div><div class="card-body">
+<div class="tabs"><button onclick="setPeriod('daily',this)" class="active">Daily</button><button onclick="setPeriod('weekly',this)">Weekly</button><button onclick="setPeriod('monthly',this)">Monthly</button><button onclick="setPeriod('yearly',this)">Yearly</button></div>
+<div class="filter-grid"><div class="field"><label>Date</label><input id="filterDate" type="date" onchange="applyFilter()"></div><div class="field"><label>Month</label><select id="filterMonth" onchange="applyFilter()"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div><div class="field"><label>Year</label><select id="filterYear" onchange="applyFilter()"><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select></div><div class="field"><label>Action</label><button onclick="resetFilter()" class="btn btn-green btn-block" style="height:42px">Reset</button></div></div>
+<p style="font-size:12px;color:#64748B;margin-top:10px" id="filterHint">Showing money for today.</p>
+</div></div>
+<div class="money-grid">
+<div class="money-card"><div class="m-head green"><span id="earnTitle">TODAY'S TOTAL EARNINGS</span><span>100%</span></div><div class="m-body"><div class="big" id="totalEarnings">UGX 0</div><div class="desc" id="earnJobs">0 jobs</div><div class="foot"><span>Expenses:</span><b style="color:#B91C1C" id="totalExpense">UGX 0</b></div></div></div>
+<div class="money-card"><div class="m-head save"><span>SAVINGS — 80%</span><span>KEEP</span></div><div class="m-body"><div class="big" style="color:#166534" id="totalSavings">UGX 0</div><div class="desc">Do NOT touch — for growth</div><div class="foot"><span>Profit:</span><b id="netProfit">UGX 0</b></div></div></div>
+<div class="money-card"><div class="m-head use"><span>OTHERS — 20%</span><span>SPEND</span></div><div class="m-body"><div class="big" style="color:#92400E" id="totalOthers">UGX 0</div><div class="desc">Rent, transport, airtime, food</div><div class="foot"><span>Left after expense:</span><b id="otherLeft">UGX 0</b></div></div></div>
+</div>
+<div class="charts-grid">
+<div class="card"><div class="card-head"><span id="pieTitle">Savings vs Others</span></div><div class="card-body"><div class="chart-box"><canvas id="savePie"></canvas></div><div class="legend-grid"><div><div class="lbl">Savings 80%</div><div class="val" style="color:#166534" id="pieSave">UGX 0</div></div><div><div class="lbl">Others 20%</div><div class="val" style="color:#92400E" id="pieOther">UGX 0</div></div></div></div></div>
+<div class="card"><div class="card-head"><span id="barTitle">Earnings vs Expense</span><span class="badge" id="barRange">-</span></div><div class="card-body"><div class="chart-box"><canvas id="periodChart"></canvas></div><div class="legend-grid"><div><div class="lbl">Earnings</div><div class="val" style="color:#166534" id="barIncome">UGX 0</div></div><div><div class="lbl">Expense</div><div class="val" style="color:#B91C1C" id="barExpense">UGX 0</div></div></div></div></div>
+</div>
+<div class="card-grid three"><div class="stat-card"><div class="lbl">Pending</div><div class="val" id="countPending">0</div></div><div class="stat-card gold"><div class="lbl">In Progress</div><div class="val" id="countProgress">0</div></div><div class="stat-card green"><div class="lbl">Completed</div><div class="val" id="countDone">0</div></div></div>
+<div class="card-grid two">
+<div class="card"><div class="card-head"><span>To Collect (Debt)</span><span class="badge" id="debtCount">0 jobs owing</span></div><div class="card-body"><div style="font-size:28px;font-weight:900;color:#B91C1C" id="totalDebt">UGX 0</div><p style="font-size:12px;color:#64748B">Total balance customers still owe you.</p><a href="jobs.html" class="btn btn-green btn-block" style="margin-top:12px">View Debtors</a></div></div>
+<div class="card"><div class="card-head"><span>Low Stock Alert</span><span class="badge" id="lowCount">0</span></div><div class="card-body"><div id="lowStockList" style="display:flex;flex-direction:column;gap:8px"></div><a href="stock.html" class="btn btn-green btn-block" style="margin-top:12px">Manage Stock</a></div></div>
+</div>
+<div class="card"><div class="card-head"><span>Recent Jobs</span><a href="jobs.html" class="badge">View All →</a></div><div class="card-body"><div class="search-wrap"><i class="fa-solid fa-search"></i><input id="searchJob" oninput="filterJobs()" placeholder="Search job / name..."></div><div id="recentJobs"></div></div></div>
+<div class="links-card"><h3><i class="fa-solid fa-link"></i> Quick Links</h3><div class="links-grid"><a href="customers.html" class="link-item"><i class="fa-solid fa-users"></i>Customers<span>Manage customers</span></a><a href="prices.html" class="link-item"><i class="fa-solid fa-tags"></i>Prices<span>Price list</span></a><a href="expenses.html" class="link-item"><i class="fa-solid fa-money-bill-wave"></i>Expenses<span>Record expenses</span></a><a href="reports.html" class="link-item"><i class="fa-solid fa-chart-line"></i>Reports<span>Monthly & yearly</span></a></div></div>
+</div>
+<div class="footer"><b>IVAN TECH HUB</b> • Business Monitor System • © 2026 • Yumbe, Uganda<p>Fast, Affordable & Reliable Service</p></div>
+<div class="bottom-nav"><a href="dashboard.html" class="active"><i class="fa-solid fa-gauge-high"></i>Dashboard</a><a href="jobs.html"><i class="fa-solid fa-briefcase"></i>Jobs</a><a href="new-job.html"><i class="fa-solid fa-circle-plus"></i>New</a><a href="stock.html"><i class="fa-solid fa-box"></i>Stock</a><a href="reports.html"><i class="fa-solid fa-chart-line"></i>Reports</a></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xgadezouciekpsflwxdd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const user = JSON.parse(localStorage.getItem('ith_user') || 'null');
+if (!user) location.href = 'login.html';
+if (user) {
+  document.getElementById('userName').textContent = user.full_name || user.username;
+  document.getElementById('userRole').textContent = user.role || 'STAFF';
+  document.getElementById('greetName').textContent = (user.full_name || user.username).split(' ')[0];
+}
+function logout(){ localStorage.removeItem('ith_user'); location.href = 'login.html'; }
+function fmt(n){ return 'UGX ' + Number(n || 0).toLocaleString(); }
+const hour = new Date().getHours();
+document.getElementById('greeting').textContent = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+let allJobs = [], allExpenses = [], period = 'daily', savePie = null, periodChart = null;
+const todayStr = new Date().toISOString().slice(0,10);
+document.getElementById('filterDate').value = todayStr;
+document.getElementById('filterMonth').value = String(new Date().getMonth());
+document.getElementById('filterYear').value = '2026';
+function setPeriod(p, btn){
+  period = p;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  applyFilter();
+}
+function resetFilter(){
+  period = 'daily';
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tabs button').classList.add('active');
+  document.getElementById('filterDate').value = todayStr;
+  applyFilter();
+}
+function getRange(){
+  const dVal = document.getElementById('filterDate').value || todayStr;
+  const mVal = Number(document.getElementById('filterMonth').value);
+  const yVal = Number(document.getElementById('filterYear').value);
+  let start = '', end = '', label = '', hint = '', barLabels = [];
+  if (period === 'daily'){
+    start = dVal; end = dVal;
+    label = 'Daily • ' + new Date(dVal + 'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    hint = 'Showing money for ' + new Date(dVal + 'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+    barLabels = [new Date(dVal + 'T00:00:00').toLocaleDateString('en-GB',{weekday:'short'})];
+  } else if (period === 'weekly'){
+    const d = new Date(dVal + 'T00:00:00');
+    const diff = (d.getDay() === 0 ? -6 : 1 - d.getDay());
+    const mon = new Date(d); mon.setDate(d.getDate() + diff);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    start = mon.toISOString().slice(0,10); end = sun.toISOString().slice(0,10);
+    label = 'Weekly • ' + mon.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ' - ' + sun.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    hint = 'Showing money for week ' + mon.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ' to ' + sun.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    for (let i = 0; i < 7; i++){ const dd = new Date(mon); dd.setDate(mon.getDate() + i); barLabels.push(dd.toLocaleDateString('en-GB',{weekday:'short'})); }
+  } else if (period === 'monthly'){
+    start = yVal + '-' + String(mVal + 1).padStart(2,'0') + '-01';
+    const last = new Date(yVal, mVal + 1, 0).getDate();
+    end = yVal + '-' + String(mVal + 1).padStart(2,'0') + '-' + String(last).padStart(2,'0');
+    label = 'Monthly • ' + new Date(yVal, mVal, 1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    hint = 'Showing money for ' + new Date(yVal, mVal, 1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    for (let i = 1; i <= last; i++) barLabels.push(String(i));
+  } else {
+    start = yVal + '-01-01'; end = yVal + '-12-31';
+    label = 'Yearly • ' + yVal; hint = 'Showing money for whole year ' + yVal;
+    barLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  }
+  return {start, end, label, hint, barLabels};
+}
+function applyFilter(){
+  const r = getRange();
+  document.getElementById('filterLabel').textContent = r.label;
+  document.getElementById('filterHint').textContent = r.hint;
+  document.getElementById('pieTitle').textContent = r.label + ' — Savings vs Others';
+  document.getElementById('barTitle').textContent = r.label + ' — Earnings vs Expense';
+  document.getElementById('barRange').textContent = r.start + ' to ' + r.end;
+  const periodJobs = allJobs.filter(j => { const d = (j.created_at || '').slice(0,10); return d >= r.start && d <= r.end; });
+  const periodExps = allExpenses.filter(e => e.date && e.date >= r.start && e.date <= r.end);
+  const earnings = periodJobs.reduce((s,j) => s + Number(j.paid || 0), 0);
+  const expense = periodExps.reduce((s,e) => s + Number(e.amount || 0), 0);
+  const profit = earnings - expense;
+  const savings = Math.round(earnings * 0.80);
+  const others = earnings - savings;
+  const otherLeft = others - expense;
+  const periodName = period === 'daily' ? "Today's" : period === 'weekly' ? "This Week's" : period === 'monthly' ? "This Month's" : "This Year's";
+  document.getElementById('earnTitle').textContent = periodName.toUpperCase() + ' TOTAL EARNINGS';
+  document.getElementById('totalEarnings').textContent = fmt(earnings);
+  document.getElementById('totalExpense').textContent = fmt(expense);
+  document.getElementById('totalSavings').textContent = fmt(savings);
+  document.getElementById('totalOthers').textContent = fmt(others);
+  document.getElementById('netProfit').textContent = fmt(profit);
+  document.getElementById('otherLeft').textContent = fmt(otherLeft);
+  document.getElementById('earnJobs').textContent = periodJobs.length + ' job(s) • Paid money collected';
+  document.getElementById('pieSave').textContent = fmt(savings);
+  document.getElementById('pieOther').textContent = fmt(others);
+  document.getElementById('barIncome').textContent = fmt(earnings);
+  document.getElementById('barExpense').textContent = fmt(expense);
+  if (savePie) savePie.destroy();
+  savePie = new Chart(document.getElementById('savePie'), {
+    type: 'pie',
+    data: { labels: ['Savings 80%', 'Others 20%'], datasets: [{ data: [savings, others], backgroundColor: ['#166534', '#FDB913'], borderWidth: 1 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: function(c){ return ' ' + c.label + ': UGX ' + Number(c.parsed || 0).toLocaleString(); } } } } }
+  });
+  let incData = [], expData = [];
+  if (period === 'daily'){ incData = [earnings]; expData = [expense]; }
+  else if (period === 'weekly'){
+    for (let i = 0; i < 7; i++){ const d = new Date(r.start + 'T00:00:00'); d.setDate(d.getDate() + i); const ds = d.toISOString().slice(0,10);
+      incData.push(periodJobs.filter(j => (j.created_at || '').slice(0,10) === ds).reduce((s,j) => s + Number(j.paid || 0), 0));
+      expData.push(periodExps.filter(e => e.date === ds).reduce((s,e) => s + Number(e.amount || 0), 0));
+    }
+  } else if (period === 'monthly'){
+    for (let i = 1; i <= r.barLabels.length; i++){ const ds = r.start.slice(0,8) + String(i).padStart(2,'0');
+      incData.push(periodJobs.filter(j => (j.created_at || '').slice(0,10) === ds).reduce((s,j) => s + Number(j.paid || 0), 0));
+      expData.push(periodExps.filter(e => e.date === ds).reduce((s,e) => s + Number(e.amount || 0), 0));
+    }
+  } else {
+    for (let m = 0; m < 12; m++){ const ym = r.start.slice(0,4) + '-' + String(m + 1).padStart(2,'0');
+      incData.push(periodJobs.filter(j => (j.created_at || '').slice(0,7) === ym).reduce((s,j) => s + Number(j.paid || 0), 0));
+      expData.push(periodExps.filter(e => (e.date || '').slice(0,7) === ym).reduce((s,e) => s + Number(e.amount || 0), 0));
+    }
+  }
+  if (periodChart) periodChart.destroy();
+  periodChart = new Chart(document.getElementById('periodChart'), {
+    type: 'bar',
+    data: { labels: r.barLabels, datasets: [
+      { label: 'Earnings', data: incData, backgroundColor: '#166534' },
+      { label: 'Expense', data: expData, backgroundColor: '#B91C1C' }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: function(c){ return ' ' + c.dataset.label + ': UGX ' + Number(c.parsed.y || 0).toLocaleString(); } } } }, scales: { y: { beginAtZero: true, ticks: { callback: function(v){ return 'UGX ' + Number(v).toLocaleString(); } } }, x: { grid: { display: false } } } }
+  });
+}
+async function load(){
+  const jRes = await supabaseClient.from('ith_jobs').select('*').order('created_at',{ascending:false}).limit(500);
+  const eRes = await supabaseClient.from('ith_expenses').select('*').order('date',{ascending:false}).limit(500);
+  allJobs = jRes.data || []; allExpenses = eRes.data || [];
+  document.getElementById('countPending').textContent = allJobs.filter(j => j.status === 'Pending').length;
+  document.getElementById('countProgress').textContent = allJobs.filter(j => j.status === 'In Progress').length;
+  document.getElementById('countDone').textContent = allJobs.filter(j => j.status === 'Completed').length;
+  const totalDebt = allJobs.reduce((s,j) => s + Number(j.balance || 0), 0);
+  document.getElementById('totalDebt').textContent = fmt(totalDebt);
+  document.getElementById('debtCount').textContent = allJobs.filter(j => Number(j.balance || 0) > 0).length + ' jobs owing';
+  const sRes = await supabaseClient.from('ith_stock').select('*').order('quantity',{ascending:true});
+  const stock = sRes.data || [];
+  const low = stock.filter(s => Number(s.quantity || 0) <= Number(s.low_stock_at || 5));
+  document.getElementById('lowCount').textContent = low.length;
+  document.getElementById('lowStockList').innerHTML = low.length ? low.slice(0,4).map(s => '<div style="display:flex;justify-content:space-between;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:10px 12px;font-size:13px"><span>⚠️ ' + s.item_name + '</span><b style="color:#B91C1C">' + s.quantity + ' left</b></div>').join('') : '<div style="text-align:center;color:#166534;font-weight:700;padding:12px">✓ All stock is OK</div>';
+  renderJobs(allJobs.slice(0,6));
+  applyFilter();
+}
+function renderJobs(list){
+  if (!list.length){ document.getElementById('recentJobs').innerHTML = '<div style="text-align:center;color:#64748B;padding:12px">No jobs yet.</div>'; return; }
+  document.getElementById('recentJobs').innerHTML = list.map(j => {
+    const bc = j.status === 'Completed' ? 'badge-green' : j.status === 'In Progress' ? 'badge-amber' : 'badge-blue';
+    return '<div class="job-card"><div class="left"><div class="icon"><i class="fa-solid fa-briefcase"></i></div><div><div class="title">' + j.job_no + ' — ' + (j.service || '') + '</div><div class="sub">' + (j.customer_name || 'Walk-in') + ' • ' + (j.customer_phone || '-') + '</div></div></div><div class="right"><span class="badge ' + bc + '">' + j.status + '</span><div style="font-size:12px;font-weight:700;margin-top:4px">Bal: <span style="color:#B91C1C">' + fmt(j.balance || 0) + '</span></div></div></div>';
+  }).join('');
+}
+function filterJobs(){
+  const q = document.getElementById('searchJob').value.toLowerCase();
+  renderJobs(allJobs.filter(j => (j.job_no + ' ' + j.customer_name + ' ' + j.service + ' ' + j.customer_phone).toLowerCase().includes(q)).slice(0,6));
+}
+load();
+</script></body></html>

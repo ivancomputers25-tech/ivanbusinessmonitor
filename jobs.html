@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Jobs - IVAN TECH HUB</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<div class="topbar"><div class="topbar-inner"><img src="images/logo.jpg" onerror="this.style.display='none'"><div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Business Monitor System • Fast, Affordable & Reliable</div><div class="sub">Yumbe, Uganda • 0778007451</div></div><div class="top-user"><div>Welcome, <b id="userName">Loading...</b></div><span class="role" id="userRole">-</span><button onclick="logout()">Logout</button></div></div></div>
+<nav class="menu"><div class="menu-inner"><a href="dashboard.html">Dashboard</a><a href="jobs.html" class="active">Jobs</a><a href="customers.html">Customers</a><a href="stock.html">Stock</a><a href="prices.html">Prices</a><a href="expenses.html">Expenses</a><a href="reports.html">Reports</a><a href="settings.html">Settings</a></div></nav>
+<div class="wrap">
+<div class="breadcrumb">Home / <b>Jobs</b></div>
+<div class="title-card"><div><h2><i class="fa-solid fa-briefcase"></i> All Jobs</h2><p id="jobCount">Loading jobs...</p></div><div class="actions"><a href="new-job.html" class="btn btn-gold"><i class="fa-solid fa-plus"></i> New Job</a><a href="invoice.html" class="btn btn-green"><i class="fa-solid fa-receipt"></i> Receipt</a></div></div>
+<div class="card"><div class="card-head"><span>Filter & Search</span></div><div class="card-body">
+<div class="tabs"><button onclick="setStatus('All',this)" class="active">All</button><button onclick="setStatus('Pending',this)">Pending</button><button onclick="setStatus('In Progress',this)">In Progress</button><button onclick="setStatus('Completed',this)">Completed</button><button onclick="setStatus('Debt',this)">With Debt</button></div>
+<div class="search-wrap" style="margin-top:12px"><i class="fa-solid fa-search"></i><input id="searchInput" oninput="render()" placeholder="Search job no, customer, phone, service..."></div>
+<div class="form-grid two"><div class="field"><label>From Date</label><input id="fromDate" type="date" onchange="render()"></div><div class="field"><label>To Date</label><input id="toDate" type="date" onchange="render()"></div></div>
+</div></div>
+<div class="card"><div class="card-head"><span>Jobs List</span><span class="badge" id="totalJobs">0 jobs</span></div><div class="card-body">
+<div class="table-wrap" id="tableWrap"><table><thead><tr><th>Job No</th><th>Customer</th><th>Service</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="jobsTable"></tbody></table></div>
+<div id="jobsCards"></div>
+</div></div>
+<div class="card"><div class="card-head"><span>Totals</span></div><div class="card-body"><div class="card-grid three"><div class="stat-card"><div class="lbl">Total Jobs</div><div class="val" id="tCount">0</div></div><div class="stat-card green"><div class="lbl">Total Paid</div><div class="val" id="tPaid">UGX 0</div></div><div class="stat-card red"><div class="lbl">Total Balance</div><div class="val" id="tBal">UGX 0</div></div></div></div></div>
+</div>
+<div class="footer"><b>IVAN TECH HUB</b> • © 2026 • Yumbe, Uganda</div>
+<div class="bottom-nav"><a href="dashboard.html"><i class="fa-solid fa-gauge-high"></i>Dashboard</a><a href="jobs.html" class="active"><i class="fa-solid fa-briefcase"></i>Jobs</a><a href="new-job.html"><i class="fa-solid fa-circle-plus"></i>New</a><a href="stock.html"><i class="fa-solid fa-box"></i>Stock</a><a href="reports.html"><i class="fa-solid fa-chart-line"></i>Reports</a></div>
+<div class="modal-bg" id="editModal"><div class="modal"><div class="modal-head"><span>Edit Job</span><button onclick="closeModal()">×</button></div><div class="modal-body"><input type="hidden" id="editId"><div class="form-grid two"><div class="field"><label>Paid (UGX)</label><input id="editPaid" type="number"></div><div class="field"><label>Status</label><select id="editStatus"><option>Pending</option><option>In Progress</option><option>Completed</option></select></div></div><button class="btn btn-green btn-block" style="margin-top:14px" onclick="saveEdit()">Save Changes</button></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xgadezouciekpsflwxdd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const user = JSON.parse(localStorage.getItem('ith_user') || 'null');
+if (!user) location.href = 'login.html';
+if (user){ document.getElementById('userName').textContent = user.full_name || user.username; document.getElementById('userRole').textContent = user.role || 'STAFF'; }
+function logout(){ localStorage.removeItem('ith_user'); location.href = 'login.html'; }
+function fmt(n){ return 'UGX ' + Number(n || 0).toLocaleString(); }
+function esc(s){ return String(s || '').replace(/'/g, ""); }
+let allJobs = [], curStatus = 'All';
+function setStatus(s, btn){ curStatus = s; document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); render(); }
+async function load(){
+  const res = await supabaseClient.from('ith_jobs').select('*').order('created_at',{ascending:false});
+  allJobs = res.data || []; render();
+}
+function render(){
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const from = document.getElementById('fromDate').value, to = document.getElementById('toDate').value;
+  let list = allJobs.filter(j => {
+    if (curStatus === 'Debt' && Number(j.balance || 0) <= 0) return false;
+    if (curStatus !== 'All' && curStatus !== 'Debt' && j.status !== curStatus) return false;
+    if (q && !(j.job_no + ' ' + j.customer_name + ' ' + (j.customer_phone || '') + ' ' + (j.service || '')).toLowerCase().includes(q)) return false;
+    const d = (j.created_at || '').slice(0,10); if (from && d < from) return false; if (to && d > to) return false; return true;
+  });
+  document.getElementById('jobCount').textContent = list.length + ' jobs found • ' + allJobs.length + ' total';
+  document.getElementById('totalJobs').textContent = list.length + ' jobs';
+  document.getElementById('tCount').textContent = list.length;
+  document.getElementById('tPaid').textContent = fmt(list.reduce((s,j) => s + Number(j.paid || 0), 0));
+  document.getElementById('tBal').textContent = fmt(list.reduce((s,j) => s + Number(j.balance || 0), 0));
+  document.getElementById('jobsTable').innerHTML = list.length ? list.map(j => {
+    const bc = j.status === 'Completed' ? 'badge-green' : j.status === 'In Progress' ? 'badge-amber' : 'badge-blue';
+    return '<tr><td><b>' + j.job_no + '</b></td><td>' + esc(j.customer_name) + '<br><small>' + esc(j.customer_phone) + '</small></td><td>' + esc(j.service) + '</td><td>' + fmt(j.total) + '</td><td>' + fmt(j.paid) + '</td><td style="color:#B91C1C;font-weight:800">' + fmt(j.balance) + '</td><td><span class="badge ' + bc + '">' + j.status + '</span></td><td>' + (j.created_at || '').slice(0,10) + '</td><td><button class="btn btn-blue btn-sm" onclick="openEdit(\'' + j.id + '\',' + Number(j.paid || 0) + ',\'' + j.status + '\')">Edit</button> <button class="btn btn-red btn-sm" onclick="delJob(\'' + j.id + '\')">Del</button></td></tr>';
+  }).join('') : '<tr><td colspan="9" style="text-align:center;padding:20px">No jobs found</td></tr>';
+  document.getElementById('jobsCards').innerHTML = list.map(j => {
+    const bc = j.status === 'Completed' ? 'badge-green' : j.status === 'In Progress' ? 'badge-amber' : 'badge-blue';
+    return '<div class="record-card"><div style="display:flex;justify-content:space-between"><b>' + j.job_no + ' — ' + esc(j.service) + '</b><span class="badge ' + bc + '">' + j.status + '</span></div><div class="sub">' + esc(j.customer_name) + ' • ' + esc(j.customer_phone) + ' • ' + (j.created_at || '').slice(0,10) + '</div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><span>Total ' + fmt(j.total) + '</span> <span>Paid ' + fmt(j.paid) + '</span> <span style="color:#B91C1C;font-weight:800">Bal ' + fmt(j.balance) + '</span></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-blue btn-sm" onclick="openEdit(\'' + j.id + '\',' + Number(j.paid || 0) + ',\'' + j.status + '\')">Edit</button><button class="btn btn-red btn-sm" onclick="delJob(\'' + j.id + '\')">Delete</button><a href="invoice.html?job=' + j.id + '" class="btn btn-gold btn-sm">Receipt</a></div></div>';
+  }).join('');
+  const isMobile = window.innerWidth < 768;
+  document.getElementById('jobsCards').style.display = isMobile ? 'block' : 'none';
+  document.getElementById('tableWrap').style.display = isMobile ? 'none' : 'block';
+}
+function openEdit(id, paid, status){ document.getElementById('editId').value = id; document.getElementById('editPaid').value = paid; document.getElementById('editStatus').value = status; document.getElementById('editModal').classList.add('open'); }
+function closeModal(){ document.getElementById('editModal').classList.remove('open'); }
+async function saveEdit(){
+  const id = document.getElementById('editId').value;
+  const paid = Number(document.getElementById('editPaid').value || 0);
+  const status = document.getElementById('editStatus').value;
+  const job = allJobs.find(j => String(j.id) === String(id)); if (!job) return;
+  const total = Number(job.total || 0); const balance = Math.max(0, total - paid);
+  const res = await supabaseClient.from('ith_jobs').update({paid: paid, balance: balance, status: status}).eq('id', id);
+  if (res.error) return alert(res.error.message);
+  closeModal(); load();
+}
+async function delJob(id){
+  if (!confirm('Delete this job?')) return;
+  const res = await supabaseClient.from('ith_jobs').delete().eq('id', id);
+  if (res.error) alert(res.error.message); else load();
+}
+load();
+</script></body></html>

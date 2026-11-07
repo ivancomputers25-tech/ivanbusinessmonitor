@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Stock - IVAN TECH HUB</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<div class="topbar"><div class="topbar-inner"><img src="images/logo.jpg" onerror="this.style.display='none'"><div><h1>IVAN <span>TECH HUB</span></h1><div class="motto">Business Monitor System</div><div class="sub">Yumbe, Uganda</div></div><div class="top-user"><div>Welcome, <b id="userName">Loading...</b></div><span class="role" id="userRole">-</span><button onclick="logout()">Logout</button></div></div></div>
+<nav class="menu"><div class="menu-inner"><a href="dashboard.html">Dashboard</a><a href="jobs.html">Jobs</a><a href="customers.html">Customers</a><a href="stock.html" class="active">Stock</a><a href="prices.html">Prices</a><a href="expenses.html">Expenses</a><a href="reports.html">Reports</a><a href="settings.html">Settings</a></div></nav>
+<div class="wrap"><div class="breadcrumb">Home / <b>Stock</b></div>
+<div class="title-card"><div><h2><i class="fa-solid fa-boxes-stacked"></i> Stock</h2><p id="stockInfo">Loading stock...</p></div><button class="btn btn-gold" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add Item</button></div>
+<div class="card"><div class="card-head"><span>Stock List</span></div><div class="card-body"><div class="search-wrap"><i class="fa-solid fa-search"></i><input id="searchInput" oninput="render()" placeholder="Search item..."></div><div class="table-wrap" id="tableWrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Buy Price</th><th>Sell Price</th><th>Low At</th><th>Value</th><th>Action</th></tr></thead><tbody id="stockTable"></tbody></table></div><div id="stockCards"></div></div></div>
+</div><div class="footer"><b>IVAN TECH HUB</b> • © 2026</div>
+<div class="modal-bg" id="stockModal"><div class="modal"><div class="modal-head"><span id="modalTitle">Add Item</span><button onclick="closeModal()">×</button></div><div class="modal-body"><input type="hidden" id="editId"><div class="form-grid two"><div class="field"><label>Item Name</label><input id="sName"></div><div class="field"><label>Quantity</label><input id="sQty" type="number" value="0"></div><div class="field"><label>Buy Price</label><input id="sBuy" type="number" value="0"></div><div class="field"><label>Sell Price</label><input id="sSell" type="number" value="0"></div><div class="field"><label>Low Stock At</label><input id="sLow" type="number" value="5"></div></div><button class="btn btn-green btn-block" style="margin-top:14px" onclick="saveStock()">Save Item</button></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://xgadezouciekpsflwxdd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_M3R1f0sXkJb9p7uZJvYJ2Q_9H3P4f0J";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const user = JSON.parse(localStorage.getItem('ith_user') || 'null');
+if (!user) location.href = 'login.html';
+if (user){ document.getElementById('userName').textContent = user.full_name || user.username; document.getElementById('userRole').textContent = user.role || 'STAFF'; }
+function logout(){ localStorage.removeItem('ith_user'); location.href = 'login.html'; }
+function fmt(n){ return 'UGX ' + Number(n || 0).toLocaleString(); }
+function esc(s){ return String(s || '').replace(/'/g, ""); }
+let all = [];
+async function load(){ const res = await supabaseClient.from('ith_stock').select('*').order('item_name',{ascending:true}); all = res.data || []; render(); }
+function render(){
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const list = all.filter(s => s.item_name.toLowerCase().includes(q));
+  const low = list.filter(s => Number(s.quantity) <= Number(s.low_stock_at || 5));
+  document.getElementById('stockInfo').textContent = list.length + ' items • ' + low.length + ' low stock • Value ' + fmt(list.reduce((sum,s) => sum + Number(s.quantity || 0) * Number(s.buy_price || 0), 0));
+  document.getElementById('stockTable').innerHTML = list.length ? list.map(s => {
+    const isLow = Number(s.quantity) <= Number(s.low_stock_at || 5);
+    return '<tr><td><b>' + esc(s.item_name) + '</b> ' + (isLow ? '<span class="badge badge-red">LOW</span>' : '') + '</td><td>' + s.quantity + '</td><td>' + fmt(s.buy_price) + '</td><td>' + fmt(s.sell_price) + '</td><td>' + s.low_stock_at + '</td><td>' + fmt(Number(s.quantity) * Number(s.buy_price)) + '</td><td><button class="btn btn-blue btn-sm" onclick="editStock(\'' + s.id + '\')">Edit</button> <button class="btn btn-red btn-sm" onclick="delStock(\'' + s.id + '\')">Del</button></td></tr>';
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:20px">No stock</td></tr>';
+  document.getElementById('stockCards').innerHTML = list.map(s => {
+    const isLow = Number(s.quantity) <= Number(s.low_stock_at || 5);
+    return '<div class="record-card"><b>' + esc(s.item_name) + '</b> ' + (isLow ? '<span class="badge badge-red">LOW</span>' : '') + '<div class="sub">Qty ' + s.quantity + ' • Buy ' + fmt(s.buy_price) + ' • Sell ' + fmt(s.sell_price) + '</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-blue btn-sm" onclick="editStock(\'' + s.id + '\')">Edit</button><button class="btn btn-red btn-sm" onclick="delStock(\'' + s.id + '\')">Delete</button></div></div>';
+  }).join('');
+  const isMobile = window.innerWidth < 768;
+  document.getElementById('stockCards').style.display = isMobile ? 'block' : 'none';
+  document.getElementById('tableWrap').style.display = isMobile ? 'none' : 'block';
+}
+function openModal(){ document.getElementById('modalTitle').textContent = 'Add Item'; document.getElementById('editId').value = ''; document.getElementById('sName').value = ''; document.getElementById('sQty').value = 0; document.getElementById('sBuy').value = 0; document.getElementById('sSell').value = 0; document.getElementById('sLow').value = 5; document.getElementById('stockModal').classList.add('open'); }
+function closeModal(){ document.getElementById('stockModal').classList.remove('open'); }
+function editStock(id){ const s = all.find(x => String(x.id) === String(id)); if (!s) return; document.getElementById('modalTitle').textContent = 'Edit Item'; document.getElementById('editId').value = s.id; document.getElementById('sName').value = s.item_name; document.getElementById('sQty').value = s.quantity; document.getElementById('sBuy').value = s.buy_price; document.getElementById('sSell').value = s.sell_price; document.getElementById('sLow').value = s.low_stock_at; document.getElementById('stockModal').classList.add('open'); }
+async function saveStock(){
+  const id = document.getElementById('editId').value;
+  const payload = { item_name: document.getElementById('sName').value.trim(), quantity: Number(document.getElementById('sQty').value || 0), buy_price: Number(document.getElementById('sBuy').value || 0), sell_price: Number(document.getElementById('sSell').value || 0), low_stock_at: Number(document.getElementById('sLow').value || 5) };
+  if (!payload.item_name) return alert('Enter item name');
+  let res;
+  if (id){ res = await supabaseClient.from('ith_stock').update(payload).eq('id', id); }
+  else { res = await supabaseClient.from('ith_stock').insert(payload); }
+  if (res.error) alert(res.error.message);
+  closeModal(); load();
+}
+async function delStock(id){ if (!confirm('Delete item?')) return; await supabaseClient.from('ith_stock').delete().eq('id', id); load(); }
+load();
+</script></body></html>
